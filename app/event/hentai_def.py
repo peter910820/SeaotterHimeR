@@ -11,6 +11,6 @@ def wancg_Search(five_numbers):
     soup = BeautifulSoup(r.text,'lxml')
     data = soup.select("h2")
     try:
-        return data[0].text + '\nhttps://www.wnacg.org/photos-index-aid-{five_numbers}.html'
+        return data[0].text + '\n' + f'https://www.wnacg.org/photos-index-aid-{five_numbers}.html'
     except:
         return '沒有這個本子!'
