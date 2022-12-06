@@ -8,9 +8,8 @@ from linebot.models import *
 import re
 import psycopg2
 
-from app.event.testMessage_def import test_Word
-from app.event.hentai_def import nhentai_Search
-from app.event.randomChoice_def import *
+from app.event.hentai_def import *
+from app.event.basic_function import *
 from app.event.arcaeaGroup_def import *
 from app.event.spider_def import *
 
@@ -25,15 +24,12 @@ handler = WebhookHandler("4e54578529f5d566b759c7c54c8e8ae2")
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
-
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
-
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
-
     return 'OK'
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -54,12 +50,14 @@ def handle_message(event):
     for i in range(len(rows)):
         if event.message.text == rows[i][0]:
             msg.append(TextSendMessage(text = rows[i][1]))
+
+    #test message:        
     if event.message.text == '$test':
         msg.append(TextSendMessage(text = test_Word()))
     
 # /command:
     # /search
-    if event.message.text == '/search':
+    if re.match(r'[$]search', event.message.text,re.IGNORECASE):
         cursor.execute("SELECT Input, Output from Words")
         rows = cursor.fetchall()
         db1 = []
@@ -74,7 +72,7 @@ def handle_message(event):
         db3 = re.sub("\[|\'|\]","",db3)
         msg.append(TextSendMessage(text = db3.replace(', ',"\n")))
     # /insert
-    if re.match(r'^[/][I][N][S][E][R][T][-][a-zA-Z0-9_/:.\u4e00-\u9fa5]{1,20}[-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,40}$', event.message.text):
+    if re.match(r'^[$]insert[-][a-zA-Z0-9_/:.\u4e00-\u9fa5]{1,20}[-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,40}$', event.message.text,re.IGNORECASE):
         messageList = event.message.text
         messageList = messageList.split('-')
         messageIN = messageList[1]
@@ -85,7 +83,7 @@ def handle_message(event):
         database.commit()
         msg.append(TextSendMessage(text=f'輸入出組合: {messageIN}-{messageOUT} 已成功設置'))
     # /delete
-    if re.match(r'^[/][D][E][L][-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,20}$', event.message.text):
+    if re.match(r'^[$]delete[-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,20}$', event.message.text,re.IGNORECASE):
         messageList = event.message.text
         messageList = messageList.split('-')
         messageDEL = messageList[1]
@@ -98,29 +96,26 @@ def handle_message(event):
                 database.commit()
         msg.append(TextSendMessage(text=f'{messageDEL} 已成功刪除'))
     #Google功能
-    if re.match(r'^[$][g][o][o][g][l][e][-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,20}$', event.message.text):
+    if re.match(r'^[$][g][o][o][g][l][e][-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,20}$', event.message.text,re.IGNORECASE):
         msg.append(TextSendMessage(text = google_Search(event.message.text)))
 #arcaea群組會用到的功能(((===============================================================
-    if "dc" in event.message.text or "DC" in event.message.text or "Dc" in event.message.text:
-        msg.append(TextSendMessage(text = dc_Publicity()))
     if "查" in  event.message.text:
         msg.append(TextSendMessage(text = score_Search()))
-    if "群規" in event.message.text:
-        msg.append(TextSendMessage(text = arcaea_Roles()))
     if "vc" in event.message.text or "VC" in event.message.text or "Vc" in event.message.text:
         msg.append(TextSendMessage(text = snowth("VC")))
     if "天堂門" in event.message.text:
         msg.append(TextSendMessage(text = snowth("天堂門")))
-#arcaea群組會用到的功能(((===============================================================
 #群組會用到的功能(((=====================================================================
     if "運勢" in event.message.text:
         msg.append(TextSendMessage(text = fortunate()))
-    if re.match(r'^[N][0-9]{1,6}$', event.message.text) or re.match(r'^[n][0-9]{1,6}$', event.message.text):
+    if re.match(r'^[n][0-9]{1,6}$', event.message.text,re.IGNORECASE):
         msg.append(TextSendMessage(text = nhentai_Search(event.message.text)))
-#群組會用到的功能(((=====================================================================
+    if re.match(r'^[w][0-9]{1,5}$', event.message.text,re.IGNORECASE):
+        msg.append(TextSendMessage(text = wancg_Search(event.message.text)))
+        
     line_bot_api.reply_message(event.reply_token, messages=msg[:5])
-    # cursor.close()   #關閉游標
-    # database.close() #關閉DB
+    cursor.close()   #關閉游標
+    database.close() #關閉DB
 
 
 # 網頁端 #
