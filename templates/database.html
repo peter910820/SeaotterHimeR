@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}海獺姬資料表{% endblock %}
+
+{% block main %}
+<h2>歡迎使用者: {{ cookie }}</h2>
+<div class="container">
+    <h1>海獺姬資料表</h1>
+    <div>
+        <a>指令鍵入:</a>
+        <form action="/insert_Complete" method="post">
+            <input type="text" name="Input" placeholder="輸入值">
+            <input type="text" name="Output" placeholder="輸出值">
+            <input type="submit" value="鍵入">
+    </div>
+    {% for i in data %}
+    <div class="row">
+        <div class="col-12 col-md-6 col-xl-2 bg-light inputColor">{{ i[0] }}</div>
+        <div class="col-12 col-md-6 col-xl-2 bg-light outputColor">{{ i[1] }}</div>
+        <div class="col-12 col-md-6 col-xl-2 bg-light timeColor">{{ i[2] }}</div>
+        <div class="col-12 col-md-6 col-xl-2 bg-light dateColor">{{ i[3] }}</div>
+        <div class="col-12 col-md-6 col-xl-2 bg-light dateColor">
+            <a class="btn btn-outline-primary" href="#" role="button">先不要按</a>
+        </div>
+        <div class="col-12 col-md-6 col-xl-2 bg-light dateColor">
+            <a class="btn btn-outline-danger" href="/database" role="button" onclick="post()">這沒屁用</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<script src="../static/post.js"></script>
+{% endblock %}
