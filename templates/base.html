@@ -5,8 +5,8 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
-        <link rel="icon" href="{{ url_for('static', path='img/icon.ico') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='/styles.css') }}">
+        <link rel="icon" href="{{ url_for('static', filename='img/icon.ico') }}">
         <title>{% block title %}{% endblock %}</title>
     </head>
     <body>
@@ -22,7 +22,7 @@
                   <a class="nav-link" href="/#">首頁</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="/introduce">海獺姬簡介</a>
+                  <a class="nav-link" href="/introduce">海獺姬R簡介</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="/database">指令鍵入</a>

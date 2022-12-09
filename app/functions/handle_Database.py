@@ -36,51 +36,51 @@ def web_insert_database(Input,Output):
     cursor.execute("INSERT INTO Words (Input, Output, Time, Date) VALUES (%s,%s,%s,%s)", (Input,Output,timeDate[0],timeDate[1]))
     database.commit()
 
-# def check_login(account, password):
-#     DATABASE_URL = os.environ['DATABASE_URL']
-#     database = psycopg2.connect(DATABASE_URL, sslmode='require')
-#     cursor = database.cursor()   
-#     print('DB UserDetailed is connect ok!')
-#     cursor.execute("SELECT Account, Password from UserDetailed")
-#     rows = cursor.fetchall()
-#     for i in range(len(rows)):
-#         if account == rows[i][0] and password == rows[i][1]:
-#             reminderMessage = "pass"
-#             return reminderMessage
-#         elif account == rows[i][0] and password != rows[i][1]:
-#             reminderMessage = "密碼輸入錯誤"
-#             return reminderMessage
-#         elif account == None or password == None:
-#             reminderMessage = "欄位不得為空"
-#             return reminderMessage
-#     return "查無此帳號"
+def check_login(account, password):
+    DATABASE_URL ='postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
+    database = psycopg2.connect(DATABASE_URL, sslmode='require')
+    cursor = database.cursor()   
+    print('DB UserDetailed is connect ok!')
+    cursor.execute("SELECT username, password from userDetails")
+    rows = cursor.fetchall()
+    for i in range(len(rows)):
+        if account == rows[i][0] and password == rows[i][1]:
+            reminderMessage = "pass"
+            return reminderMessage
+        elif account == rows[i][0] and password != rows[i][1]:
+            reminderMessage = "密碼輸入錯誤"
+            return reminderMessage
+        elif account == None or password == None:
+            reminderMessage = "欄位不得為空"
+            return reminderMessage
+    return "查無此帳號"
 
-# def register_judge(account, password, passwordCheck, checkPwd):
-#     if  account == None or password == None or passwordCheck == None or checkPwd == None:
-#         return "欄位不得為空!"
-#     elif passwordCheck != password:
-#         return "密碼確認有誤!"
-#     elif checkPwd != "Arcaea":
-#         return "通行碼輸入錯誤!"
-#     else:
-#         DATABASE_URL = os.environ['DATABASE_URL']
-#         database = psycopg2.connect(DATABASE_URL, sslmode='require')
-#         cursor = database.cursor()   
-#         print('DB UserDetailed is connect ok!')
-#         cursor.execute("SELECT Account, Password from UserDetailed")
-#         rows = cursor.fetchall()
-#         for i in range(len(rows)):
-#             if account == rows[i][0]:
-#                return "帳號已經存在!"  
-#         loc_dt = datetime.datetime.today() 
-#         time_del = datetime.timedelta(hours=8) 
-#         new_dt = loc_dt + time_del 
-#         datetime_format = new_dt.strftime("%Y/%m/%d %H:%M:%S")
-#         cursor.execute("INSERT INTO UserDetailed (Time, Account, Password) VALUES (%s,%s,%s)", (datetime_format,account,password))
-#         database.commit()
-#         cursor.close()
-#         database.close()
-#         return "帳號建立成功!"
+def register_judge(account, password, passwordCheck, checkPwd):
+    if  account.strip() == '' or password.strip() == '' or passwordCheck.strip() == '' or checkPwd.strip()== '':
+        return "欄位不得為空!"
+    elif passwordCheck != password:
+        return "密碼確認有誤!"
+    elif checkPwd != "Arcaea":
+        return "通行碼輸入錯誤!"
+    else:
+        DATABASE_URL = 'postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
+        database = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = database.cursor()
+        print('DB UserDetailed is connect ok!')
+        cursor.execute("SELECT username, password from userDetails")
+        rows = cursor.fetchall()
+        for i in range(len(rows)):
+            if account == rows[i][0]:
+               return "帳號已經存在!"  
+        loc_dt = datetime.datetime.today() 
+        time_del = datetime.timedelta(hours=8) 
+        new_dt = loc_dt + time_del 
+        datetime_format = new_dt.strftime("%Y/%m/%d %H:%M:%S")
+        cursor.execute("INSERT INTO userDetails (username, password, createtime) VALUES (%s,%s,%s)", (account,password,datetime_format,))
+        database.commit()
+        cursor.close()
+        database.close()
+        return "帳號建立成功!"
 # def change_password_database(c_user, old_password, new_password, new_password_check):
 #     if old_password == None or new_password == None or new_password_check == None:
 #         return "欄位不得為空!"

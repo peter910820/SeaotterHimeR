@@ -1,4 +1,4 @@
-from flask import Flask, abort, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, abort, render_template, request, redirect, url_for, send_from_directory,make_response
 
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.exceptions import (InvalidSignatureError)
@@ -119,70 +119,80 @@ def handle_message(event):
 
 
 # 網頁端 #
-# @app.route('/', methods=['GET'])
-# def root(request: Request, response: Response):
-#     response = templates.TemplateResponse('login.html',{'request':request})
-#     response.delete_cookie("c_user")
-#     return render_template('hello.html')
-#     return response
+@app.route('/', methods=['GET'])
+def root():
+    template = render_template('login.html')
+    response = make_response(template)
+    response.delete_cookie('c_user')
+    return response
 
-# @app.get("/introduce", response_class=HTMLResponse) 
-# async def introduce(request: Request, c_user: str = Cookie(None)):
-#     if c_user:
-#         return templates.TemplateResponse("introduce.html", {"request": request,"cookie" :c_user})
-#     return RedirectResponse("/")
+@app.route("/introduce", methods=['GET']) 
+def introduce():
+    c_user = request.cookies.get('c_user')
+    if c_user:
+        return render_template("introduce.html",cookie = c_user)
+    return redirect(url_for('root'))
     
-# @app.post("/insert_Complete", response_class=HTMLResponse) 
-# async def insert(request: Request, Input:str=Form(None), Output:str=Form(None)):
-#     web_insert_database(Input,Output)
-#     return templates.TemplateResponse("insert_Complete.html", {"request": request})
+# @app.route("/insert_Complete",methods=['POST']) 
+# def insert():
+#     web_insert_database(request.form['Input'],request.form['Output'])
+#     return render_template("insert_Complete.html")
 
-# @app.get("/database", response_class=HTMLResponse) 
-# async def database(request: Request, c_user: str = Cookie(None)):
+# @app.route("/database", methods=['GET']) 
+# def database():
+#     c_user = request.cookies.get('c_user')
 #     show_data = show_database()
 #     if c_user:
-#         return templates.TemplateResponse("database.html", {"request": request, "data" : show_data  ,"cookie" :c_user})
-#     return RedirectResponse("/")
-# #註冊#
-# @app.get("/register", response_class=HTMLResponse)
-# async def register(request: Request):
-#     return templates.TemplateResponse("register.html", {"request": request})
-# #註冊狀態#
-# @app.post("/register/judge")
-# async def register_show(request: Request, account:str=Form(None), 
-#                         password:str=Form(None), passwordCheck:str=Form(None),checkPwd:str=Form(None)):
-#     reminderMessage = register_judge(account, password, passwordCheck, checkPwd)
-#     return templates.TemplateResponse("register_Show.html", {"request": request, "reminderMessage": reminderMessage})
-        
-# #登入#
-# @app.post('/home')
-# async def get_user(request:Request, response: Response, account:str=Form(None), password:str=Form(None)):
-#     reminderMessage = check_login(account,password)
-#     if reminderMessage == "pass":
-#         response = templates.TemplateResponse('home.html',{'request':request,'account':account})
-#         response.set_cookie(key="c_user", value=account)
-#         return response
-#     else:
-#         return templates.TemplateResponse('submit_Fail.html',{'request':request, 'reminderMessage':reminderMessage})
-# @app.get('/home/change_password', response_class=HTMLResponse)
-# async def change_password(request:Request, response: Response, c_user: str = Cookie(None)):
-#     if c_user:
-#         return templates.TemplateResponse("change_Password.html", {"request": request,"cookie" : c_user})
-#     return RedirectResponse("/")
+#         return render_template("database.html", data = show_data, cookie = c_user)
+#     return redirect(url_for('root'))
 
-# @app.post('/home/change_password/judge', response_class=HTMLResponse)
-# async def change_password(request:Request, c_user: str = Cookie(None),
-#                         old_password:str=Form(None), new_password:str=Form(None), new_password_check:str=Form(None)):
+#註冊
+@app.route("/register", methods=['GET'])
+def register():
+    return render_template('register.html')
+#註冊狀態
+@app.route("/register/judge", methods=['POST'])
+def register_show():
+    reminderMessage = register_judge(str(request.form["account"]), str(request.form["password"]), str(request.form["passwordCheck"]), str(request.form["checkPwd"]))
+    return render_template("register_Show.html",reminderMessage = reminderMessage)
+        
+#登入
+@app.route('/home', methods=['POST'])
+def get_user():
+    if str(request.form["account"]).strip() == '' or str(request.form["password"]).strip() == '':
+        reminderMessage = check_login(None,None)
+    else: reminderMessage = check_login(str(request.form["account"]),str(request.form["password"]))
+    if reminderMessage == "pass":
+        template = render_template('home.html', account = request.form["account"])
+        response = make_response(template)
+        response.set_cookie(key="c_user", value = str(request.form["account"]))
+        return response
+    else:
+        return render_template('submit_Fail.html',reminderMessage = reminderMessage)
+
+# @app.route('/home/change_password', methods=['GET'])
+# def change_password():
+#     c_user = request.cookies.get('c_user')
+#     if c_user:
+#         return render_template("change_Password.html", cookie = c_user)
+#     return redirect(url_for('root'))
+
+# @app.route('/home/change_password/judge', methods=['POST'])
+# def change_password():
+#     c_user = request.cookies.get('c_user')
+#     old_password = request.form['old_password']
+#     new_password = request.form['new_password']
+#     new_password_check = request.form['new_password_check']
 #     if c_user:
 #         state = change_password_database(c_user, old_password, new_password, new_password_check)
 #         if state != None:
-#             return templates.TemplateResponse('change_pwd_fail.html',{'request':request, 'state':state, "cookie" : c_user})
+#             return render_template('change_pwd_fail.html',state = state, cookie = c_user)
 #         else:
-#             return templates.TemplateResponse('change_pwd_success.html',{'request':request, "cookie" : c_user})
+#             return render_template('change_pwd_success.html', cookie = c_user)
 
-# @app.get("/items/{id}", response_class=HTMLResponse)
-# async def read_item(request: Request, id: str):
-#     return templates.TemplateResponse("item.html", {"request": request, "id": id})
+# @app.route("/items/{id}", methods=['GET'])
+# def read_item(id: str):
+#     return render_template("item.html", id = id)
 
 if __name__ == '__main__':
    app.run()
