@@ -4,10 +4,10 @@ import psycopg2
 from app.functions.handle_Time import *
 
 def show_database():
-    DATABASE_URL = os.environ['DATABASE_URL']
+    DATABASE_URL ='postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
     database = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = database.cursor()   
-    print('DB Words is connect ok!')
+    print('Database Words is connect ok!')
     cursor.execute("SELECT Input, Output, Time, Date from Words")
     rows = cursor.fetchall()
     db0 = []
@@ -27,7 +27,7 @@ def show_database():
     return db5
 
 def web_insert_database(Input,Output):
-    DATABASE_URL = os.environ['DATABASE_URL']
+    DATABASE_URL ='postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
     database = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = database.cursor()   
     print('DB Words is connect ok!')
@@ -81,24 +81,25 @@ def register_judge(account, password, passwordCheck, checkPwd):
         cursor.close()
         database.close()
         return "帳號建立成功!"
-# def change_password_database(c_user, old_password, new_password, new_password_check):
-#     if old_password == None or new_password == None or new_password_check == None:
-#         return "欄位不得為空!"
-#     elif new_password != new_password_check:
-#         return "密碼確認有誤!"
-#     DATABASE_URL = os.environ['DATABASE_URL']
-#     database = psycopg2.connect(DATABASE_URL, sslmode='require')
-#     cursor = database.cursor()   
-#     print('DB UserDetailed is connect ok!')
-#     cursor.execute("SELECT Account, Password from UserDetailed")
-#     rows = cursor.fetchall()
-#     for i in range(len(rows)):
-#         if c_user == rows[i][0]:
-#             if old_password != rows[i][1]:
-#                 return "原密碼輸入錯誤!"
-#             cursor.execute("UPDATE UserDetailed SET Password=(%s) WHERE account=(%s)",(new_password,c_user))
-#             database.commit()
-#             cursor.close()
-#             database.close()
-#             break
-#     return None
+
+def change_password_database(c_user, old_password, new_password, new_password_check):
+    if old_password.strip() == '' or new_password.strip() == '' or new_password_check.strip() == '':
+        return "欄位不得為空!"
+    elif new_password != new_password_check:
+        return "密碼確認有誤!"
+    DATABASE_URL = 'postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
+    database = psycopg2.connect(DATABASE_URL, sslmode='require')
+    cursor = database.cursor()   
+    print('Database userDetails is connect ok!')
+    cursor.execute("SELECT username, password from userDetails")
+    rows = cursor.fetchall()
+    for i in range(len(rows)):
+        if c_user == rows[i][0]:
+            if old_password != rows[i][1]:
+                return "原密碼輸入錯誤!"
+            cursor.execute("UPDATE userDetails SET password=(%s) WHERE username=(%s)",(new_password,c_user))
+            database.commit()
+            cursor.close()
+            database.close()
+            break
+    return None

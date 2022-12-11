@@ -1,12 +1,11 @@
-from flask import Flask, abort, render_template, request, redirect, url_for, send_from_directory,make_response
+from flask import Flask, abort, render_template, redirect, url_for, make_response, request
 
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.exceptions import (InvalidSignatureError)
 from linebot.models import *
 
 # import os
-import re
-import psycopg2
+import re,psycopg2
 
 from app.event.hentai_def import *
 from app.event.basic_function import *
@@ -133,18 +132,18 @@ def introduce():
         return render_template("introduce.html",cookie = c_user)
     return redirect(url_for('root'))
     
-# @app.route("/insert_Complete",methods=['POST']) 
-# def insert():
-#     web_insert_database(request.form['Input'],request.form['Output'])
-#     return render_template("insert_Complete.html")
+@app.route("/insert_Complete",methods=['POST']) 
+def insert():
+    web_insert_database(request.form['Input'],request.form['Output'])
+    return render_template("insert_Complete.html")
 
-# @app.route("/database", methods=['GET']) 
-# def database():
-#     c_user = request.cookies.get('c_user')
-#     show_data = show_database()
-#     if c_user:
-#         return render_template("database.html", data = show_data, cookie = c_user)
-#     return redirect(url_for('root'))
+@app.route("/database", methods=['GET']) 
+def database():
+    c_user = request.cookies.get('c_user')
+    show_data = show_database()
+    if c_user:
+        return render_template("database.html", data = show_data, cookie = c_user)
+    return redirect(url_for('root'))
 
 #註冊
 @app.route("/register", methods=['GET'])
@@ -170,25 +169,25 @@ def get_user():
     else:
         return render_template('submit_Fail.html',reminderMessage = reminderMessage)
 
-# @app.route('/home/change_password', methods=['GET'])
-# def change_password():
-#     c_user = request.cookies.get('c_user')
-#     if c_user:
-#         return render_template("change_Password.html", cookie = c_user)
-#     return redirect(url_for('root'))
+@app.route('/home/change_password', methods=['GET'])
+def change_password():
+    c_user = request.cookies.get('c_user')
+    if c_user:
+        return render_template("change_Password.html", cookie = c_user)
+    return redirect(url_for('root'))
 
-# @app.route('/home/change_password/judge', methods=['POST'])
-# def change_password():
-#     c_user = request.cookies.get('c_user')
-#     old_password = request.form['old_password']
-#     new_password = request.form['new_password']
-#     new_password_check = request.form['new_password_check']
-#     if c_user:
-#         state = change_password_database(c_user, old_password, new_password, new_password_check)
-#         if state != None:
-#             return render_template('change_pwd_fail.html',state = state, cookie = c_user)
-#         else:
-#             return render_template('change_pwd_success.html', cookie = c_user)
+@app.route('/home/change_password/judge', methods=['POST'])
+def change_passwordJudge():
+    c_user = request.cookies.get('c_user')
+    old_password = request.form['old_password']
+    new_password = request.form['new_password']
+    new_password_check = request.form['new_password_check']
+    if c_user:
+        state = change_password_database(c_user, old_password, new_password, new_password_check)
+        if state != None:
+            return render_template('change_pwd_fail.html',state = state, cookie = c_user)
+        else:
+            return render_template('change_pwd_success.html', cookie = c_user)
 
 # @app.route("/items/{id}", methods=['GET'])
 # def read_item(id: str):
