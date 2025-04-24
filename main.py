@@ -8,6 +8,7 @@ import os
 import re
 import psycopg2
 from dotenv import load_dotenv
+from loguru import logger
 
 from app.event.hentai_def import *
 from app.event.basic_function import *
