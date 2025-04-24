@@ -4,9 +4,10 @@ from linebot import (LineBotApi, WebhookHandler)
 from linebot.exceptions import (InvalidSignatureError)
 from linebot.models import *
 
-# import os
+import os
 import re
 import psycopg2
+from dotenv import load_dotenv
 
 from app.event.hentai_def import *
 from app.event.basic_function import *
@@ -18,9 +19,10 @@ from app.functions.handle_Database import *
 
 app = Flask(__name__)
 
-line_bot_api = LineBotApi(
-    "uwxCr4T8etW4PhFQdvAQk1UcZRi5Yg+x4tiqvmUHHLdio4hZiHh/djgSoLCqYJjGl8tsbTcwRLz6xER1uhofuTPMeqqFRUH9SPEycnJKqNzkjsaF+34gJsw7JBeAkXAXPlDciEOo2s8k3tE84l6ETQdB04t89/1O/w1cDnyilFU=")
-handler = WebhookHandler("4e54578529f5d566b759c7c54c8e8ae2")
+load_dotenv()
+
+line_bot_api = LineBotApi(os.getenv("CHANNEL_ACCESS_TOKEN"))
+handler = WebhookHandler(os.getenv("4e54578529f5d566b759c7c54c8e8ae2"))
 
 
 @app.route("/callback", methods=['POST'])
