@@ -22,7 +22,7 @@ app = Flask(__name__)
 load_dotenv()
 
 line_bot_api = LineBotApi(os.getenv("CHANNEL_ACCESS_TOKEN"))
-handler = WebhookHandler(os.getenv("4e54578529f5d566b759c7c54c8e8ae2"))
+handler = WebhookHandler(os.getenv("CHANNEL_SECRET"))
 
 
 @app.route("/callback", methods=['POST'])
