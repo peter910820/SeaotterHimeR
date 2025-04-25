@@ -9,11 +9,11 @@ class Crawler(object):
     def __init__(self) -> None:
         pass
 
-    def nhentai_Search(self, six_numbers):
+    def nhentai_search(self, six_numbers):
         six_numbers = six_numbers[1:]
         return "https://nhentai.net/g/" + six_numbers
 
-    def wancg_Search(self, five_numbers):
+    def wancg_search(self, five_numbers):
         five_numbers = five_numbers[1:]
         r = requests.get(
             f'https://www.wnacg.org/photos-index-aid-{five_numbers}.html')
@@ -24,7 +24,7 @@ class Crawler(object):
         except:
             return '沒有這個本子!'
 
-    def google_Search(self, search_words):
+    def google_search(self, search_words):
         search_words = search_words[8:]
         response = requests.get(
             f"https://www.bing.com/search?q={search_words}",
