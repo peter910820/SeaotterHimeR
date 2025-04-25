@@ -10,10 +10,7 @@ import psycopg2
 from dotenv import load_dotenv
 from loguru import logger
 
-from app.event.hentai_def import *
-from app.event.basic_function import *
-from app.event.arcaeaGroup_def import *
-from app.event.spider_def import *
+from app.event.arcaea_group import ArcaeaGroup
 
 from app.functions.handle_Time import dateOperation
 from app.functions.handle_Database import *
@@ -108,11 +105,14 @@ def handle_message(event):
         msg.append(TextSendMessage(text=google_Search(event.message.text)))
 # arcaea群組會用到的功能(((===============================================================
     if "查" in event.message.text:
-        msg.append(TextSendMessage(text=score_Search()))
-    if "vc" in event.message.text or "VC" in event.message.text or "Vc" in event.message.text:
-        msg.append(TextSendMessage(text=snowth("VC")))
+        arcara_group = ArcaeaGroup()
+        msg.append(TextSendMessage(text=arcara_group.score_search()))
+    if "vc" in event.message.text.lower():
+        arcara_group = ArcaeaGroup()
+        msg.append(TextSendMessage(text=arcara_group.snowth("VC")))
     if "天堂門" in event.message.text:
-        msg.append(TextSendMessage(text=snowth("天堂門")))
+        arcara_group = ArcaeaGroup()
+        msg.append(TextSendMessage(text=arcara_group.snowth("天堂門")))
 # 群組會用到的功能(((=====================================================================
     if "運勢" in event.message.text:
         msg.append(TextSendMessage(text=fortunate()))

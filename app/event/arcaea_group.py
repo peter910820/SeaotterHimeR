@@ -3,7 +3,7 @@ class ArcaeaGroup(object):
     def __init__(self) -> None:
         pass
 
-    def score_Search(self):
+    def score_search(self):
         return '''以下是查分器連結 請妥善使用～
                 \nhttps://arcinfo.eatsteak.xyz/
                 \n下面為舊查分器連結～
