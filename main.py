@@ -1,8 +1,13 @@
 from flask import Flask, abort, render_template, redirect, url_for, make_response, request
 
-from linebot import (LineBotApi, WebhookHandler)
-from linebot.exceptions import (InvalidSignatureError)
-from linebot.models import *
+from linebot.v3 import WebhookHandler
+from linebot.v3.exceptions import InvalidSignatureError
+from linebot.v3.messaging import (
+    Configuration, ApiClient, MessagingApi,
+    ReplyMessageRequest, TextMessage
+)
+
+from linebot.v3.webhooks import MessageEvent, TextMessageContent
 
 import os
 import re
@@ -17,11 +22,10 @@ from app.event.arcaea_group import ArcaeaGroup
 from app.functions.handle_Time import dateOperation
 from app.functions.handle_Database import *
 
-app = Flask(__name__)
-
 load_dotenv()
 
-line_bot_api = LineBotApi(os.getenv("CHANNEL_ACCESS_TOKEN"))
+app = Flask(__name__)
+configuration = Configuration(os.getenv("CHANNEL_ACCESS_TOKEN"))
 handler = WebhookHandler(os.getenv("CHANNEL_SECRET"))
 
 
@@ -37,110 +41,118 @@ def callback():
     return 'OK'
 
 
-@handler.add(MessageEvent, message=TextMessage)
+@handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
-    msg = event.message.text
-    msg = msg.encode('utf-8')
-    msg = []
-
-    try:
-        DATABASE_URL = 'postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
-        database = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = database.cursor()
-        logger.success('Database is Connect ok!')
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
         msg = event.message.text
         msg = msg.encode('utf-8')
         msg = []
-        cursor.execute("SELECT Input, Output from Words")
-        rows = cursor.fetchall()
-        for i in range(len(rows)):
-            if event.message.text == rows[i][0]:
-                msg.append(TextSendMessage(text=rows[i][1]))
 
-        # test message:
-        if event.message.text == '$test':
-            msg.append(TextSendMessage(text="測試webhook成功"))
+        try:
+            #     DATABASE_URL = 'postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
+            #     database = psycopg2.connect(DATABASE_URL, sslmode='require')
+            #     cursor = database.cursor()
+            #     logger.success('Database is Connect ok!')
+            #     cursor.execute("SELECT Input, Output from Words")
+            #     rows = cursor.fetchall()
+            #     for i in range(len(rows)):
+            #         if event.message.text == rows[i][0]:
+            #             msg.append(TextSendMessage(text=rows[i][1]))
 
-    # /command:
-        # /search
-        if re.match(r'[$]search', event.message.text, re.IGNORECASE):
-            cursor.execute("SELECT Input, Output from Words")
-            rows = cursor.fetchall()
-            db1 = []
-            db2 = []
-            db3 = []
-            for row in rows:
-                db1.append(row[0])
-                db2.append(row[1])
-            for i in range(len(db1)):
-                db3.append(f"{str(db1[i])} ---> {str(db2[i])}")
-            db3 = str(db3)
-            db3 = re.sub("\[|\'|\]", "", db3)
-            msg.append(TextSendMessage(text=db3.replace(', ', "\n")))
-        # /insert
-        if re.match(r'^[$]insert[-][a-zA-Z0-9_/:.\u4e00-\u9fa5]{1,20}[-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,40}$', event.message.text, re.IGNORECASE):
-            messageList = event.message.text
-            messageList = messageList.split('-')
-            messageIN = messageList[1]
-            messageOUT = messageList[2]
-            timeDate = dateOperation()
-            # insert database
-            cursor.execute("INSERT INTO Words (Input, Output, Time, Date) VALUES (%s,%s,%s,%s)",
-                           (messageIN, messageOUT, timeDate[0], timeDate[1]))
-            database.commit()
-            msg.append(TextSendMessage(
-                text=f'輸入出組合: {messageIN}-{messageOUT} 已成功設置'))
-        # /delete
-        if re.match(r'^[$]delete[-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,20}$', event.message.text, re.IGNORECASE):
-            messageList = event.message.text
-            messageList = messageList.split('-')
-            messageDEL = messageList[1]
-            cursor.execute("SELECT ID, Input, Output, Time, Date from Words")
-            rows = cursor.fetchall()
-            for i in range(len(rows)):
-                if messageDEL == rows[i][1]:
-                    y = rows[i][0]
-                    cursor.execute("DELETE from Words where ID=(%s)", (y,))
-                    database.commit()
-            msg.append(TextSendMessage(text=f'{messageDEL} 已成功刪除'))
+            # # /command:
+            #     # /search
+            #     if re.match(r'[$]search', event.message.text, re.IGNORECASE):
+            #         cursor.execute("SELECT Input, Output from Words")
+            #         rows = cursor.fetchall()
+            #         db1 = []
+            #         db2 = []
+            #         db3 = []
+            #         for row in rows:
+            #             db1.append(row[0])
+            #             db2.append(row[1])
+            #         for i in range(len(db1)):
+            #             db3.append(f"{str(db1[i])} ---> {str(db2[i])}")
+            #         db3 = str(db3)
+            #         db3 = re.sub("\[|\'|\]", "", db3)
+            #         msg.append(TextSendMessage(text=db3.replace(', ', "\n")))
+            #     # /insert
+            #     if re.match(r'^[$]insert[-][a-zA-Z0-9_/:.\u4e00-\u9fa5]{1,20}[-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,40}$', event.message.text, re.IGNORECASE):
+            #         messageList = event.message.text
+            #         messageList = messageList.split('-')
+            #         messageIN = messageList[1]
+            #         messageOUT = messageList[2]
+            #         timeDate = dateOperation()
+            #         # insert database
+            #         cursor.execute("INSERT INTO Words (Input, Output, Time, Date) VALUES (%s,%s,%s,%s)",
+            #                        (messageIN, messageOUT, timeDate[0], timeDate[1]))
+            #         database.commit()
+            #         msg.append(TextSendMessage(
+            #             text=f'輸入出組合: {messageIN}-{messageOUT} 已成功設置'))
+            #     # /delete
+            #     if re.match(r'^[$]delete[-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,20}$', event.message.text, re.IGNORECASE):
+            #         messageList = event.message.text
+            #         messageList = messageList.split('-')
+            #         messageDEL = messageList[1]
+            #         cursor.execute("SELECT ID, Input, Output, Time, Date from Words")
+            #         rows = cursor.fetchall()
+            #         for i in range(len(rows)):
+            #             if messageDEL == rows[i][1]:
+            #                 y = rows[i][0]
+            #                 cursor.execute("DELETE from Words where ID=(%s)", (y,))
+            #                 database.commit()
+            #         msg.append(TextSendMessage(text=f'{messageDEL} 已成功刪除'))
 
-        # google feature
-        if re.match(r'^[$][g][o][o][g][l][e][-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,20}$', event.message.text, re.IGNORECASE):
-            crawler = Crawler()
-            msg.append(TextSendMessage(
-                text=crawler.google_search(event.message.text)))
+            # test message:
+            if event.message.text == '$test':
+                msg.append(TextMessage(text="測試webhook成功"))  # type: ignore
 
-        # arcaea group feature
-        if "查" in event.message.text:
-            arcara_group = ArcaeaGroup()
-            msg.append(TextSendMessage(text=arcara_group.score_search()))
-        if "vc" in event.message.text.lower():
-            arcara_group = ArcaeaGroup()
-            msg.append(TextSendMessage(text=arcara_group.snowth("VC")))
-        if "天堂門" in event.message.text:
-            arcara_group = ArcaeaGroup()
-            msg.append(TextSendMessage(text=arcara_group.snowth("天堂門")))
+            # google feature
+            if re.match(r'^[$][g][o][o][g][l][e][-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,20}$', event.message.text, re.IGNORECASE):
+                crawler = Crawler()
+                msg.append(TextMessage(
+                    text=crawler.google_search(event.message.text)))  # type: ignore
 
-        # basic feature
-        if "運勢" in event.message.text:
-            basic = Basic()
-            msg.append(TextSendMessage(text=basic.fortunate()))
-        if re.match(r'^[n][0-9]{1,6}$', event.message.text, re.IGNORECASE):
-            crawler = Crawler()
-            msg.append(TextSendMessage(
-                text=crawler.nhentai_search(event.message.text)))
-        if re.match(r'^[w][0-9]{1,5}$', event.message.text, re.IGNORECASE):
-            crawler = Crawler()
-            msg.append(TextSendMessage(
-                text=crawler.wancg_search(event.message.text)))
+            # arcaea group feature
+            if "查" in event.message.text:
+                arcara_group = ArcaeaGroup()
+                msg.append(TextMessage(
+                    text=arcara_group.score_search()))  # type: ignore
+            if "vc" in event.message.text.lower():
+                arcara_group = ArcaeaGroup()
+                msg.append(TextMessage(
+                    text=arcara_group.snowth("VC")))  # type: ignore
+            if "天堂門" in event.message.text:
+                arcara_group = ArcaeaGroup()
+                msg.append(TextMessage(
+                    text=arcara_group.snowth("天堂門")))  # type: ignore
 
-        line_bot_api.reply_message(event.reply_token, messages=msg[:5])
+            # basic feature
+            if "運勢" in event.message.text:
+                basic = Basic()
+                msg.append(TextMessage(text=basic.fortunate()))  # type: ignore
+            if re.match(r'^[n][0-9]{1,6}$', event.message.text, re.IGNORECASE):
+                crawler = Crawler()
+                msg.append(TextMessage(
+                    text=crawler.nhentai_search(event.message.text)))  # type: ignore
+            if re.match(r'^[w][0-9]{1,5}$', event.message.text, re.IGNORECASE):
+                crawler = Crawler()
+                msg.append(TextMessage(
+                    text=crawler.wancg_search(event.message.text)))  # type: ignore
 
-        cursor.close()  # close cursor
-        database.close()  # close db
+            line_bot_api.reply_message_with_http_info(
+                ReplyMessageRequest(
+                    replyToken=event.reply_token,
+                    messages=msg[:5],
+                    notificationDisabled=True
+                )
+            )
 
-    except Exception as e:
-        logger.error(e)
+            # cursor.close()  # close cursor
+            # database.close()  # close db
+
+        except Exception as e:
+            logger.error(e)
 
 
 # 網頁端 #
