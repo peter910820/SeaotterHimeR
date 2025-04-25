@@ -25,7 +25,7 @@ from app.functions.handle_Database import *
 load_dotenv()
 
 app = Flask(__name__)
-configuration = Configuration(os.getenv("CHANNEL_ACCESS_TOKEN"))
+configuration = Configuration(access_token=os.getenv("CHANNEL_ACCESS_TOKEN"))
 handler = WebhookHandler(os.getenv("CHANNEL_SECRET"))
 
 
@@ -37,6 +37,8 @@ def callback():
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
+        app.logger.info(
+            "Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
     return 'OK'
 
