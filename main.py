@@ -142,13 +142,16 @@ def handle_message(event):
                 msg.append(TextMessage(
                     text=crawler.wancg_search(event.message.text)))  # type: ignore
 
-            line_bot_api.reply_message_with_http_info(
-                ReplyMessageRequest(
-                    replyToken=event.reply_token,
-                    messages=msg[:5],
-                    notificationDisabled=True
+            if msg != []:
+                line_bot_api.reply_message_with_http_info(
+                    ReplyMessageRequest(
+                        replyToken=event.reply_token,
+                        messages=msg[:5],
+                        notificationDisabled=True
+                    )
                 )
-            )
+            else:  # 沒有符合的回應
+                pass
 
             # cursor.close()  # close cursor
             # database.close()  # close db
