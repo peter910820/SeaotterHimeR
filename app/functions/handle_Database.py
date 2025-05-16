@@ -1,11 +1,15 @@
 import os
 import psycopg2
 
+from dotenv import load_dotenv
+
 from app.functions.handle_Time import *
+
+load_dotenv()
 
 
 def show_database():
-    DATABASE_URL = 'postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
+    DATABASE_URL = os.getenv("DATABASE_URL")
     database = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = database.cursor()
     print('Database Words is connect ok!')
@@ -29,7 +33,7 @@ def show_database():
 
 
 def web_insert_database(Input, Output):
-    DATABASE_URL = 'postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
+    DATABASE_URL = os.getenv("DATABASE_URL")
     database = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = database.cursor()
     print('DB Words is connect ok!')
@@ -41,7 +45,7 @@ def web_insert_database(Input, Output):
 
 
 def check_login(account, password):
-    DATABASE_URL = 'postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
+    DATABASE_URL = os.getenv("DATABASE_URL")
     database = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = database.cursor()
     print('DB UserDetailed is connect ok!')
@@ -68,7 +72,7 @@ def register_judge(account, password, passwordCheck, checkPwd):
     elif checkPwd != "Arcaea":
         return "通行碼輸入錯誤!"
     else:
-        DATABASE_URL = 'postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
+        DATABASE_URL = os.getenv("DATABASE_URL")
         database = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = database.cursor()
         print('DB UserDetailed is connect ok!')
@@ -94,7 +98,7 @@ def change_password_database(c_user, old_password, new_password, new_password_ch
         return "欄位不得為空!"
     elif new_password != new_password_check:
         return "密碼確認有誤!"
-    DATABASE_URL = 'postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
+    DATABASE_URL = os.getenv("DATABASE_URL")
     database = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = database.cursor()
     print('Database userDetails is connect ok!')

@@ -52,15 +52,15 @@ def handle_message(event):
         msg = []
 
         try:
-            #     DATABASE_URL = 'postgres://seaotter:Ersl2kH5sG2IOiEzrFQLsh4kI5NDcyTi@dpg-ce7jktarrk049r63khs0-a.oregon-postgres.render.com/seaotterhimedb'
-            #     database = psycopg2.connect(DATABASE_URL, sslmode='require')
-            #     cursor = database.cursor()
-            #     logger.success('Database is Connect ok!')
-            #     cursor.execute("SELECT Input, Output from Words")
-            #     rows = cursor.fetchall()
-            #     for i in range(len(rows)):
-            #         if event.message.text == rows[i][0]:
-            #             msg.append(TextSendMessage(text=rows[i][1]))
+            # DATABASE_URL = os.getenv("DATABASE_URL")
+            # database = psycopg2.connect(DATABASE_URL, sslmode='require')
+            # cursor = database.cursor()
+            # logger.success('Database is Connect ok!')
+            # cursor.execute("SELECT Input, Output from Words")
+            # rows = cursor.fetchall()
+            # for i in range(len(rows)):
+            #     if event.message.text == rows[i][0]:
+            #         msg.append(TextMessage(text=rows[i][1]))
 
             # # /command:
             #     # /search
@@ -77,7 +77,8 @@ def handle_message(event):
             #             db3.append(f"{str(db1[i])} ---> {str(db2[i])}")
             #         db3 = str(db3)
             #         db3 = re.sub("\[|\'|\]", "", db3)
-            #         msg.append(TextSendMessage(text=db3.replace(', ', "\n")))
+            #         # type: ignore
+            #         msg.append(TextMessage(text=db3.replace(', ', "\n")))
             #     # /insert
             #     if re.match(r'^[$]insert[-][a-zA-Z0-9_/:.\u4e00-\u9fa5]{1,20}[-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,40}$', event.message.text, re.IGNORECASE):
             #         messageList = event.message.text
@@ -89,21 +90,25 @@ def handle_message(event):
             #         cursor.execute("INSERT INTO Words (Input, Output, Time, Date) VALUES (%s,%s,%s,%s)",
             #                        (messageIN, messageOUT, timeDate[0], timeDate[1]))
             #         database.commit()
-            #         msg.append(TextSendMessage(
+            #         # type: ignore
+            #         msg.append(TextMessage(
             #             text=f'輸入出組合: {messageIN}-{messageOUT} 已成功設置'))
             #     # /delete
             #     if re.match(r'^[$]delete[-][a-zA-Z0-9__/:.\u4e00-\u9fa5]{1,20}$', event.message.text, re.IGNORECASE):
             #         messageList = event.message.text
             #         messageList = messageList.split('-')
             #         messageDEL = messageList[1]
-            #         cursor.execute("SELECT ID, Input, Output, Time, Date from Words")
+            #         cursor.execute(
+            #             "SELECT ID, Input, Output, Time, Date from Words")
             #         rows = cursor.fetchall()
             #         for i in range(len(rows)):
             #             if messageDEL == rows[i][1]:
             #                 y = rows[i][0]
-            #                 cursor.execute("DELETE from Words where ID=(%s)", (y,))
+            #                 cursor.execute(
+            #                     "DELETE from Words where ID=(%s)", (y,))
             #                 database.commit()
-            #         msg.append(TextSendMessage(text=f'{messageDEL} 已成功刪除'))
+            #         msg.append(
+            #             TextMessage(text=f'{messageDEL} 已成功刪除'))  # type: ignore
 
             # test message:
             if event.message.text == '$test':
