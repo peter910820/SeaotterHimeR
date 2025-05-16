@@ -1,6 +1,8 @@
-# seaotterhimeR
+# SeaotterHimeR
 
-This project is SeaotterHime project assigned to Render version, is a LineBot messaging API,equipped with PostgreSQL as a database.
+## 此專案已被封存，新的專案改用Golang撰寫➡️[SeaotterHimeGo](https://github.com/peter910820/SeaotterHimeGo)
+
+This project is [SeaotterHime](https://github.com/peter910820/SeaotterHime) project assigned to Render version, is a LineBot messaging API,equipped with PostgreSQL as a database.
 
 * 2022/12/06 create this project and push to Render.
 * 2022/12/11 reply web function.
